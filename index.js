@@ -20,6 +20,14 @@ async function run() {
         await client.connect();
         const toolCollection = client.db('tools-place').collection('tools');
 
+
+        app.get('/tools', async (req, res) => {
+            const query = {};
+            const cursor = toolCollection.find(query);
+            const tools = await cursor.toArray();
+            res.send(tools);
+        });
+
     }
     finally {
 
