@@ -46,6 +46,18 @@ async function run() {
             res.send(result);
         })
 
+        app.get('/orders', async (req, res) => {
+            const user = req.query.user;
+            const decodedEmail = req.decoded.email;
+            if (user === decodedEmail) {
+                const query = { user: user };
+                const orders = await orderCollection.find(query).toArray();
+                return res.send(orders);
+            }
+            else {
+                return res.status(403).send({ message: 'Forbidden access' });
+            }
+        })
 
 
     }
