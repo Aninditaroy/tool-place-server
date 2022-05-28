@@ -136,6 +136,8 @@ async function run() {
         })
 
 
+
+
         app.post('/review', async (req, res) => {
             const review = req.body;
             const result = await reviewCollection.insertOne(review);
@@ -186,6 +188,26 @@ async function run() {
         })
 
 
+        app.patch('/user/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) };
+            const user = req.body;
+            console.log(user)
+
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    phoneNumber: user.phoneNumber,
+                    city: user.city,
+                    education: user.education,
+                    district: user.district,
+                    linkedinProfileLink: user.linkedinProfileLink,
+                }
+            };
+            const result = await userCollection.updateOne(query, updateDoc, options);
+            res.send(result)
+
+        })
 
         app.get('/admin/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
