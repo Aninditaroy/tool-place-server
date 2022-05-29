@@ -100,6 +100,13 @@ async function run() {
             res.send(result);
         })
 
+        app.get('/manageorders', async (req, res) => {
+            const query = {};
+            const cursor = orderCollection.find(query);
+            const manageorders = await cursor.toArray();
+            res.send(manageorders);
+        });
+
         app.get('/orders', verifyJWT, async (req, res) => {
             const orderEmail = req.query.email;
             const decodedEmail = req.decoded.email;
@@ -151,7 +158,7 @@ async function run() {
             const updateDoc = {
                 $set: { pandingChange: 'shipped' }
             };
-            const result = await ordersCollection.updateOne(filter, updateDoc, options);
+            const result = await orderCollection.updateOne(filter, updateDoc, options);
 
             res.send(result)
 
@@ -207,26 +214,13 @@ async function run() {
         })
 
 
-        // app.patch('/user/:id', async (req, res) => {
-        //     const id = req.params.id
-        //     const query = { _id: ObjectId(id) };
-        //     const user = req.body;
-        //     console.log(user)
+        app.get('/admin/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email: email });
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin })
+        })
 
-        //     const options = { upsert: true };
-        //     const updateDoc = {
-        //         $set: {
-        //             phoneNumber: user.phoneNumber,
-        //             city: user.city,
-        //             education: user.education,
-        //             district: user.district,
-        //             linkedinProfileLink: user.linkedinProfileLink,
-        //         }
-        //     };
-        //     const result = await userCollection.updateOne(query, updateDoc, options);
-        //     res.send(result)
-
-        // })
 
         app.patch('/user/:email', async (req, res) => {
             const email = req.params.email
@@ -249,12 +243,7 @@ async function run() {
 
         })
 
-        app.get('/admin/:email', verifyJWT, async (req, res) => {
-            const email = req.params.email;
-            const user = await userCollection.findOne({ email: email });
-            const isAdmin = user.role === 'admin';
-            res.send({ admin: isAdmin })
-        })
+
 
         //cancel or delete order
         //http://localhost:5000/order/:id
