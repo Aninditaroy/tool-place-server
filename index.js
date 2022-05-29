@@ -107,6 +107,20 @@ async function run() {
             res.send(manageorders);
         });
 
+        app.put('/manageorders/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const order = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: { pendingChange: 'shipped' }
+            };
+            const result = await orderCollection.updateOne(filter, updateDoc, options);
+
+            res.send(result)
+
+        })
+
         app.get('/orders', verifyJWT, async (req, res) => {
             const orderEmail = req.query.email;
             const decodedEmail = req.decoded.email;
@@ -148,20 +162,6 @@ async function run() {
             const result = await paymentCollection.insertOne(payment);
             const updatedOrder = await orderCollection.updateOne(filter, updatedDoc);
             res.send(updatedOrder);
-        })
-
-        app.put('/orders/:id', verifyJWT, async (req, res) => {
-            const id = req.params.id;
-            const order = req.body;
-            const filter = { _id: ObjectId(id) };
-            const options = { upsert: true };
-            const updateDoc = {
-                $set: { pandingChange: 'shipped' }
-            };
-            const result = await orderCollection.updateOne(filter, updateDoc, options);
-
-            res.send(result)
-
         })
 
         app.post('/review', async (req, res) => {
