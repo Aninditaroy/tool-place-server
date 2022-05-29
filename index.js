@@ -113,12 +113,20 @@ async function run() {
             }
         })
 
+        app.delete('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await orderCollection.deleteOne(query)
+            res.send(result)
+        })
+
         app.get('/orders/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const order = await orderCollection.findOne(query);
             res.send(order);
         })
+
 
         app.patch('/orders/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
@@ -135,8 +143,19 @@ async function run() {
             res.send(updatedOrder);
         })
 
+        app.put('/orders/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const order = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: { pandingChange: 'shipped' }
+            };
+            const result = await ordersCollection.updateOne(filter, updateDoc, options);
 
+            res.send(result)
 
+        })
 
         app.post('/review', async (req, res) => {
             const review = req.body;
@@ -188,23 +207,44 @@ async function run() {
         })
 
 
-        app.patch('/user/:id', async (req, res) => {
-            const id = req.params.id
-            const query = { _id: ObjectId(id) };
-            const user = req.body;
-            console.log(user)
+        // app.patch('/user/:id', async (req, res) => {
+        //     const id = req.params.id
+        //     const query = { _id: ObjectId(id) };
+        //     const user = req.body;
+        //     console.log(user)
 
+        //     const options = { upsert: true };
+        //     const updateDoc = {
+        //         $set: {
+        //             phoneNumber: user.phoneNumber,
+        //             city: user.city,
+        //             education: user.education,
+        //             district: user.district,
+        //             linkedinProfileLink: user.linkedinProfileLink,
+        //         }
+        //     };
+        //     const result = await userCollection.updateOne(query, updateDoc, options);
+        //     res.send(result)
+
+        // })
+
+        app.patch('/user/:email', async (req, res) => {
+            const email = req.params.email
+            const user = req.body;
+            const filter = { email: email };
+            console.log(user)
             const options = { upsert: true };
             const updateDoc = {
                 $set: {
-                    phoneNumber: user.phoneNumber,
+                    email: user.email,
+                    phoneNumber: user.phone,
                     city: user.city,
                     education: user.education,
                     district: user.district,
-                    linkedinProfileLink: user.linkedinProfileLink,
+                    linkedinProfileLink: user.linkedin,
                 }
             };
-            const result = await userCollection.updateOne(query, updateDoc, options);
+            const result = await userCollection.updateOne(filter, updateDoc, options);
             res.send(result)
 
         })
@@ -216,6 +256,15 @@ async function run() {
             res.send({ admin: isAdmin })
         })
 
+        //cancel or delete order
+        //http://localhost:5000/order/:id
+
+        app.delete('/order/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await ordersCollection.deleteOne(query)
+            res.send(result)
+        })
 
 
 
